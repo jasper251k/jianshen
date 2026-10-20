@@ -7,11 +7,15 @@ export default function Today({
   templates,
   workouts,
   daily,
+  active,
+  onResume,
   onOpenSettings,
 }: {
   templates: Template[]
   workouts: Workout[]
   daily: Daily[]
+  active?: Workout // 今天还没结束的训练
+  onResume: () => void
   onOpenSettings: () => void
 }) {
   const date = today()
@@ -26,6 +30,15 @@ export default function Today({
     return n === 0 ? '今天练过' : n === 1 ? '昨天练过' : `${n} 天前练过`
   }
 
+  const start = async (t: Template) => {
+    if (active) {
+      if (active.templateId === t.id) return onResume()
+      if (!confirm(`「${active.name}」还没结束，结束它并开始「${t.name}」？`)) return
+    }
+    await startWorkout(t, date)
+    onResume()
+  }
+
   return (
     <div>
       <header className="page-head row">
@@ -38,12 +51,21 @@ export default function Today({
         </button>
       </header>
 
+      {active && (
+        <button className="resume" onClick={onResume}>
+          <span>
+            <b>{active.name}</b> 进行中 · 已记 {Object.values(active.sets).flat().length} 组
+          </span>
+          <span className="resume-go">继续 ›</span>
+        </button>
+      )}
+
       <DailyCard key={date} date={date} daily={d} prev={prev} />
 
       <h2 className="section">开始训练</h2>
       <div className="templates">
         {templates.map((t) => (
-          <button key={t.id} className="tpl" onClick={() => startWorkout(t, date)}>
+          <button key={t.id} className="tpl" onClick={() => start(t)}>
             <span className="tpl-name">{t.name}</span>
             <span className="tpl-ex">{t.exercises.map((e) => e.name).join(' · ')}</span>
             <span className="tpl-last">{daysAgo(lastOf(t))}</span>

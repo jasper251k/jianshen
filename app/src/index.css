@@ -598,3 +598,24 @@ h3 {
 .daily + .card {
   margin-top: 10px;
 }
+
+/* ---------- 训练中回到首页 ---------- */
+.back {
+  display: block;
+  margin: -4px 0 4px;
+}
+.resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+.resume-go {
+  font-weight: 600;
+}

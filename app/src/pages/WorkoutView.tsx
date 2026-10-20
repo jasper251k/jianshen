@@ -5,7 +5,7 @@ import { ago, clock, setColor } from '../util'
 import ExerciseCard from '../components/ExerciseCard'
 
 // 正在练：顶部常驻「刚记了什么」，下面每个动作一张卡
-export default function WorkoutView({ w, history }: { w: Workout; history: Workout[] }) {
+export default function WorkoutView({ w, history, onBack }: { w: Workout; history: Workout[]; onBack: () => void }) {
   const now = useNow()
   useWakeLock(true)
   const [flash, setFlash] = useState<number | null>(null) // 刚点的那组颜色，整屏闪一下
@@ -62,6 +62,9 @@ export default function WorkoutView({ w, history }: { w: Workout; history: Worko
       </div>
 
       <header className="page-head">
+        <button className="link back" onClick={onBack}>
+          ‹ 首页
+        </button>
         <h1>{w.name}</h1>
         <span className="sub">
           已练 {clock(now - w.startedAt)} · {doneCount}/{total} 个动作
