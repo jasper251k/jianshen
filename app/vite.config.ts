@@ -12,8 +12,8 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png', 'icon.svg'],
       manifest: {
-        name: '训练记',
-        short_name: '训练记',
+        name: '地势琨',
+        short_name: '地势琨',
         description: '记组数、体重、热量、静息心率',
         lang: 'zh-CN',
         display: 'standalone',

@@ -33,3 +33,4 @@
 - 2026-10-20：用户反馈点进模板后退不出来、左滑直接退出网页。加「‹ 首页」返回按钮；退出后训练保留，首页顶部蓝条「XX 进行中 · 继续」；进训练 / 设置时压一层浏览记录，左滑只回首页。训练没结束又点别的模板会先问。改了 `App.tsx`、`WorkoutView.tsx`、`Today.tsx`、`index.css`。
 - 2026-10-20：用户说左滑是苹果的限制，不用管。加 RPE：深蹲、硬拉、平板卧推、划船每组可填 RPE（不沿用，每组现填），圆点下显示，动作卡顶部显示「上次 日期：100×5 @7，…」，记录页也带 @RPE；点已做的组可改 RPE；设置里每个动作可勾「记 RPE」。db 升 version 2，给旧模板和训练补上 rpe 标记。改了 `db.ts`、`util.ts`（setText）、`ExerciseCard.tsx`、`SetSheet.tsx`、`WorkoutView.tsx`、`History.tsx`、`Settings.tsx`、`index.css`。
 - 2026-10-20：用户嫌删组麻烦。改成：实心圆点单击 = 改，连点两下 = 删（刚记的 0.6 秒内不响应，防止连按误删）；顶部「刚记」那行加「删掉这组」按钮，删刚记的一组；删后底部提示 5 秒可「撤销」。writeSets 从 ExerciseCard 挪到 `db.ts`。改了 `db.ts`、`ExerciseCard.tsx`、`WorkoutView.tsx`、`index.css`。
+- 2026-10-20：用户说先用这个版本。主屏幕名字改为「地势琨」（用户确认是「琨」不是「坤」），改了 `index.html`、`vite.config.ts`。
