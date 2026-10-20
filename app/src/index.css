@@ -1,0 +1,600 @@
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --sub: #8e8e93;
+  --line: #e5e5ea;
+  --accent: #007aff;
+  --danger: #ff3b30;
+  --ok: #34c759;
+  --field: #f2f2f7;
+  --radius: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #f2f2f7;
+    --sub: #98989f;
+    --line: #38383a;
+    --accent: #0a84ff;
+    --field: #2c2c2e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: inherit;
+}
+button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  outline: none;
+  background: none;
+  min-width: 0;
+  /* iPhone 输入框字号小于 16px 会自动放大页面 */
+  font-size: 17px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* ---------- 框架 ---------- */
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 24px;
+  padding-top: env(safe-area-inset-top);
+}
+.tabbar {
+  display: flex;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tabbar button {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 15px;
+  color: var(--sub);
+  text-align: center;
+}
+.tabbar button.on {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.page-head {
+  padding: 16px 0 12px;
+}
+.page-head h1 {
+  font-size: 30px;
+  font-weight: 700;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.row.gap {
+  justify-content: flex-start;
+  margin: 12px 0;
+}
+.sub {
+  color: var(--sub);
+  font-size: 14px;
+}
+.section {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 24px 0 10px;
+}
+.note {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 10px 4px;
+}
+.card {
+  display: block;
+  width: 100%;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  font-size: 20px;
+  text-align: center;
+  color: var(--sub);
+  flex: none;
+}
+.icon-btn.danger {
+  color: var(--danger);
+}
+.link {
+  color: var(--accent);
+  font-size: 17px;
+  padding: 6px 0;
+}
+.link.strong {
+  font-weight: 600;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 13px;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--accent);
+  font-size: 17px;
+  margin-top: 10px;
+}
+.card .btn {
+  background: var(--field);
+}
+.row .btn {
+  margin-top: 0;
+}
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.btn.danger {
+  color: var(--danger);
+}
+.btn.plain {
+  background: none;
+  color: var(--sub);
+  font-size: 15px;
+}
+.btn.small {
+  display: inline-block;
+  width: auto;
+  padding: 8px 14px;
+  font-size: 15px;
+  margin: 0;
+  background: var(--field);
+}
+.times {
+  color: var(--sub);
+}
+
+/* ---------- 体重 / 热量 / 心率 ---------- */
+.daily {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.daily-cell {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.daily-label {
+  font-size: 13px;
+  color: var(--sub);
+}
+.daily-input {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.daily-input input {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.daily-input small {
+  color: var(--sub);
+  font-size: 12px;
+  flex: none;
+}
+.daily-prev {
+  font-size: 12px;
+  color: var(--sub);
+  white-space: pre;
+}
+
+/* ---------- 模板 ---------- */
+.templates {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tpl {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tpl:active {
+  opacity: 0.6;
+}
+.tpl-name {
+  font-size: 20px;
+  font-weight: 600;
+}
+.tpl-ex {
+  color: var(--sub);
+  font-size: 14px;
+}
+.tpl-last {
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* ---------- 训练中 ---------- */
+.workout {
+  padding-bottom: 20px;
+}
+.last-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 -16px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  border-left: 6px solid transparent;
+}
+.last-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  color: #fff;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.last-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+.last-text small {
+  color: var(--sub);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  animation: flash 0.6s ease-out forwards;
+}
+@keyframes flash {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.ex {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  margin-bottom: 10px;
+}
+.ex-done {
+  opacity: 0.7;
+}
+.ex-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ex-head h3 {
+  font-size: 19px;
+}
+.ex-target {
+  color: var(--sub);
+  font-size: 14px;
+}
+.ex-target b {
+  font-weight: 500;
+  color: var(--text);
+}
+.ex-target .ok {
+  color: var(--ok);
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 62px;
+}
+.dot {
+  width: 54px;
+  height: 54px;
+  border-radius: 27px;
+  border: 3px dashed;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 700;
+  opacity: 0.45;
+}
+.dot.next {
+  opacity: 1;
+  border-style: solid;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.dot.on {
+  border-style: solid;
+  color: #fff;
+  opacity: 1;
+}
+.dot.plus {
+  border: 2px dashed var(--line);
+  color: var(--sub);
+  opacity: 1;
+}
+.dot-wrap:active .dot {
+  transform: scale(0.9);
+}
+@keyframes pulse {
+  50% {
+    transform: scale(1.06);
+  }
+}
+.dot-label {
+  font-size: 12px;
+  color: var(--sub);
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+
+.ex-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.next-tag {
+  font-weight: 600;
+  font-size: 15px;
+  flex: none;
+}
+.ex-inputs label,
+.sheet-fields label,
+.edit-nums label {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--field);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.ex-inputs input {
+  width: 64px;
+  font-weight: 600;
+}
+.ex-inputs small,
+.sheet-fields small,
+.edit-nums small {
+  color: var(--sub);
+  font-size: 13px;
+}
+.timer {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.timer.up {
+  color: var(--danger);
+}
+.finish {
+  margin-top: 20px;
+}
+
+/* ---------- 改一组 ---------- */
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+}
+.sheet {
+  width: 100%;
+  background: var(--bg);
+  border-radius: 16px 16px 0 0;
+  padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+}
+.sheet h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 19px;
+}
+.sheet-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+}
+.sheet-fields {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 6px;
+}
+.sheet-fields label {
+  flex: 1;
+  background: var(--card);
+  padding: 10px 12px;
+}
+.sheet-fields input {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* ---------- 记录 ---------- */
+.day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.day-nav button {
+  font-size: 28px;
+  width: 44px;
+  text-align: center;
+  color: var(--accent);
+}
+.card-head {
+  width: 100%;
+  margin-bottom: 6px;
+}
+.hist-ex {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+}
+.hist-ex .sub {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.list {
+  padding: 4px 0;
+}
+.list-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  width: 100%;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+}
+.list-row:first-child {
+  border-top: 0;
+}
+.list-row.on {
+  background: var(--field);
+}
+.list-date {
+  font-size: 15px;
+}
+.list-vals {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.list-w {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--accent);
+}
+.list-w:empty {
+  display: none;
+}
+
+/* ---------- 设置 ---------- */
+.tpl-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tpl-title {
+  font-size: 28px;
+  font-weight: 700;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.edit-ex .ex-name {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+.edit-nums {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.edit-nums input {
+  width: 60px;
+}
+.daily + .card {
+  margin-top: 10px;
+}
