@@ -619,3 +619,32 @@ h3 {
 .resume-go {
   font-weight: 600;
 }
+
+/* ---------- RPE ---------- */
+.ex-last {
+  margin: -4px 0 10px;
+  font-size: 13px;
+  color: var(--sub);
+  font-variant-numeric: tabular-nums;
+}
+.dot-rpe {
+  font-size: 11px;
+  color: var(--text);
+  margin-top: -3px;
+}
+.ex-inputs {
+  flex-wrap: wrap;
+}
+.ex-inputs .rpe-in input {
+  width: 40px;
+}
+.edit-nums .check {
+  background: none;
+  align-items: center;
+  font-size: 15px;
+  gap: 6px;
+}
+.edit-nums .check input {
+  width: 20px;
+  height: 20px;
+}

@@ -70,6 +70,10 @@ function TemplateEditor({ t, onDone }: { t: Template; onDone: () => void }) {
                 <input inputMode="numeric" value={num(e.reps)} placeholder="—" onChange={(x) => patch(i, { reps: parseNum(x.target.value) })} />
                 <small>次</small>
               </label>
+              <label className="check">
+                <input type="checkbox" checked={!!e.rpe} onChange={(x) => patch(i, { rpe: x.target.checked || undefined })} />
+                记 RPE
+              </label>
             </div>
           )}
         </div>
@@ -93,7 +97,7 @@ export default function Settings({ templates, onClose }: { templates: Template[]
 
   if (editing) return <TemplateEditor t={editing} onDone={() => setEditing(null)} />
 
-  const desc = (e: Exercise) => (e.minutes != null ? `${e.minutes}分钟` : e.sets ? `${e.sets}×${e.reps ?? '?'}` : '看情况')
+  const desc = (e: Exercise) => (e.minutes != null ? `${e.minutes}分钟` : (e.sets ? `${e.sets}×${e.reps ?? '?'}` : '看情况') + (e.rpe ? ' · RPE' : ''))
 
   return (
     <div>

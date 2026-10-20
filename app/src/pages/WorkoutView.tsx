@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { finishWorkout, lastSetOf, db, type Workout } from '../db'
+import { finishWorkout, lastSessionOf, lastSetOf, db, type Workout } from '../db'
 import { useNow, useWakeLock } from '../hooks'
 import { ago, clock, setColor } from '../util'
 import ExerciseCard from '../components/ExerciseCard'
@@ -77,6 +77,7 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
           w={w}
           ex={ex}
           prefill={lastSetOf(history, ex.name, w.id)}
+          lastSession={lastSessionOf(history, ex.name, w.id)}
           now={now}
           onRecorded={(i) => setFlash(i)}
         />

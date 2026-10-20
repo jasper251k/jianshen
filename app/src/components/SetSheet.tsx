@@ -8,6 +8,7 @@ export default function SetSheet({
   index,
   set,
   cardio,
+  rpe: hasRpe,
   onSave,
   onDelete,
   onClose,
@@ -16,16 +17,18 @@ export default function SetSheet({
   index: number
   set: SetRec
   cardio: boolean
+  rpe: boolean
   onSave: (s: SetRec) => void
   onDelete: () => void
   onClose: () => void
 }) {
   const [kg, setKg] = useState(set.kg != null ? fmtNum(set.kg) : '')
   const [reps, setReps] = useState(set.reps != null ? fmtNum(set.reps) : '')
+  const [rpe, setRpe] = useState(set.rpe != null ? fmtNum(set.rpe) : '')
   const [min, setMin] = useState(set.min != null ? fmtNum(set.min) : '')
 
   const save = () => {
-    onSave(cardio ? { ...set, min: parseNum(min) } : { ...set, kg: parseNum(kg), reps: parseNum(reps) })
+    onSave(cardio ? { ...set, min: parseNum(min) } : { ...set, kg: parseNum(kg), reps: parseNum(reps), rpe: parseNum(rpe) })
     onClose()
   }
 
@@ -56,6 +59,12 @@ export default function SetSheet({
               <input inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} placeholder="—" />
               <small>次</small>
             </label>
+            {hasRpe && (
+              <label>
+                <small>RPE</small>
+                <input inputMode="decimal" value={rpe} onChange={(e) => setRpe(e.target.value)} placeholder="—" />
+              </label>
+            )}
           </div>
         )}
         <button className="btn primary" onClick={save}>

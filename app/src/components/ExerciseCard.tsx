@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { db, type Exercise, type SetRec, type Workout } from '../db'
 import { beep, primeAudio } from '../hooks'
-import { clock, fmtNum, parseNum, setColor } from '../util'
+import { clock, fmtDate, fmtNum, parseNum, setColor, setText } from '../util'
 import SetSheet from './SetSheet'
 
 async function writeSets(w: Workout, exId: string, fn: (list: SetRec[]) => SetRec[], extra?: Partial<Workout>) {
@@ -15,22 +15,18 @@ async function writeSets(w: Workout, exId: string, fn: (list: SetRec[]) => SetRe
     })
 }
 
-function label(s: SetRec) {
-  if (s.min != null) return `${fmtNum(s.min)} 分钟`
-  const kg = s.kg != null ? fmtNum(s.kg) : '自重'
-  return s.reps != null ? `${kg}×${fmtNum(s.reps)}` : kg
-}
-
 export default function ExerciseCard({
   w,
   ex,
   prefill,
+  lastSession,
   now,
   onRecorded,
 }: {
   w: Workout
   ex: Exercise
   prefill?: SetRec // 上次这个动作的重量和次数
+  lastSession?: { date: string; sets: SetRec[] } // 上次练这个动作的每组
   now: number
   onRecorded: (index: number) => void
 }) {
@@ -45,6 +41,7 @@ export default function ExerciseCard({
     const v = ex.reps ?? last?.reps ?? prefill?.reps
     return v != null ? fmtNum(v) : ''
   })
+  const [rpe, setRpe] = useState('') // 每组现填，不沿用
   const [editing, setEditing] = useState<number | null>(null)
 
   const target = cardio ? 1 : (ex.sets ?? 0)
@@ -53,8 +50,9 @@ export default function ExerciseCard({
   const slots = Math.max(target, done.length + (finished ? 0 : target ? 0 : 1))
 
   const record = () => {
-    const s: SetRec = cardio ? { min: ex.minutes, at: Date.now() } : { kg: parseNum(kg), reps: parseNum(reps), at: Date.now() }
+    const s: SetRec = cardio ? { min: ex.minutes, at: Date.now() } : { kg: parseNum(kg), reps: parseNum(reps), rpe: ex.rpe ? parseNum(rpe) : undefined, at: Date.now() }
     writeSets(w, ex.id, (list) => [...list, s], cardio ? { timerStart: undefined } : undefined)
+    setRpe('')
     onRecorded(done.length)
   }
 
@@ -76,6 +74,12 @@ export default function ExerciseCard({
         </span>
       </header>
 
+      {ex.rpe && lastSession && (
+        <p className="ex-last">
+          上次 {fmtDate(lastSession.date).replace(/ 周./, '')}：{lastSession.sets.map((s) => setText(s)).join('，')}
+        </p>
+      )}
+
       <div className="dots">
         {Array.from({ length: slots }, (_, i) => {
           const s = done[i]
@@ -86,7 +90,8 @@ export default function ExerciseCard({
                 <span className="dot on" style={{ background: color, borderColor: color }}>
                   {cardio ? '✓' : i + 1}
                 </span>
-                <span className="dot-label">{label(s)}</span>
+                <span className="dot-label">{setText({ ...s, rpe: undefined })}</span>
+                {s.rpe != null && <span className="dot-rpe">RPE {fmtNum(s.rpe)}</span>}
               </button>
             )
           const next = i === done.length
@@ -146,6 +151,12 @@ export default function ExerciseCard({
                 <input inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} placeholder="—" />
                 <small>次</small>
               </label>
+              {ex.rpe && (
+                <label className="rpe-in">
+                  <small>RPE</small>
+                  <input inputMode="decimal" value={rpe} onChange={(e) => setRpe(e.target.value)} placeholder="—" />
+                </label>
+              )}
             </div>
           )}
 
@@ -155,6 +166,7 @@ export default function ExerciseCard({
           index={editing}
           set={done[editing]}
           cardio={cardio}
+          rpe={!!ex.rpe}
           onSave={(s) => writeSets(w, ex.id, (l) => l.map((x, i) => (i === editing ? s : x)))}
           onDelete={() => writeSets(w, ex.id, (l) => l.filter((_, i) => i !== editing))}
           onClose={() => setEditing(null)}

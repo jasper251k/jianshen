@@ -1,13 +1,7 @@
 import { useState } from 'react'
-import { db, type Daily, type SetRec, type Workout } from '../db'
-import { clock, fmtDate, fmtNum, shiftDate, today } from '../util'
+import { db, type Daily, type Workout } from '../db'
+import { clock, fmtDate, fmtNum, setText, shiftDate, today } from '../util'
 import DailyCard from '../components/DailyCard'
-
-function setText(s: SetRec) {
-  if (s.min != null) return `${fmtNum(s.min)} 分钟`
-  const kg = s.kg != null ? fmtNum(s.kg) : '自重'
-  return s.reps != null ? `${kg}×${fmtNum(s.reps)}` : kg
-}
 
 // 按日期翻看：每天的体重 / 热量 / 心率（可补记）和练了什么
 export default function History({ workouts, daily }: { workouts: Workout[]; daily: Daily[] }) {

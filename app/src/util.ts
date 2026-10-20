@@ -33,6 +33,14 @@ export function parseNum(s: string): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined
 }
 
+// 一组的文字：100×5 @8 / 自重×8 / 30 分钟
+export function setText(s: { kg?: number; reps?: number; min?: number; rpe?: number }) {
+  if (s.min != null) return `${fmtNum(s.min)} 分钟`
+  const kg = s.kg != null ? fmtNum(s.kg) : '自重'
+  const t = s.reps != null ? `${kg}×${fmtNum(s.reps)}` : kg
+  return s.rpe != null ? `${t} @${fmtNum(s.rpe)}` : t
+}
+
 export function ago(ms: number) {
   const s = Math.max(0, Math.floor(ms / 1000))
   if (s < 60) return `${s} 秒前`

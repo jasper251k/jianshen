@@ -6,6 +6,7 @@ export type Exercise = {
   sets?: number // 固定组数；不填 = 看情况，练的时候一组组加
   reps?: number // 每组默认次数
   minutes?: number // 有填 = 有氧，按时长算
+  rpe?: boolean // 每组要记 RPE
 }
 
 export type Template = {
@@ -15,7 +16,7 @@ export type Template = {
   exercises: Exercise[]
 }
 
-export type SetRec = { kg?: number; reps?: number; min?: number; at: number }
+export type SetRec = { kg?: number; reps?: number; min?: number; rpe?: number; at: number }
 
 export type Workout = {
   id?: number
@@ -48,6 +49,16 @@ db.version(1).stores({
   daily: 'date',
 })
 
+// v2：深蹲、硬拉、平板卧推、划船加记 RPE（已有模板和训练一起改）
+const RPE_IDS = ['squat', 'deadlift', 'bench', 'row']
+const addRpe = (exs: Exercise[]) => exs.forEach((e) => RPE_IDS.includes(e.id) && (e.rpe = true))
+db.version(2)
+  .stores({})
+  .upgrade(async (tx) => {
+    await tx.table('templates').toCollection().modify((t: Template) => addRpe(t.exercises))
+    await tx.table('workouts').toCollection().modify((w: Workout) => addRpe(w.exercises))
+  })
+
 const PULLUP: Exercise = { id: 'pullup', name: '引体', sets: 4, reps: 8 }
 
 export const DEFAULT_TEMPLATES: Template[] = [
@@ -57,8 +68,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
     order: 0,
     exercises: [
       PULLUP,
-      { id: 'squat', name: '深蹲' },
-      { id: 'deadlift', name: '硬拉' },
+      { id: 'squat', name: '深蹲', rpe: true },
+      { id: 'deadlift', name: '硬拉', rpe: true },
       { id: 'hangleg', name: '悬垂举腿', sets: 4, reps: 6 },
       { id: 'fly', name: '飞鸟', sets: 4, reps: 10 },
     ],
@@ -68,8 +79,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
     name: '上半身日',
     order: 1,
     exercises: [
-      { id: 'bench', name: '平板卧推' },
-      { id: 'row', name: '划船' },
+      { id: 'bench', name: '平板卧推', rpe: true },
+      { id: 'row', name: '划船', rpe: true },
       { id: 'neckf', name: '前脖子', sets: 4, reps: 20 },
       { id: 'neckb', name: '后脖子', sets: 4, reps: 20 },
       { id: 'skull', name: '仰卧臂屈伸', sets: 4, reps: 8 },
@@ -105,6 +116,16 @@ export function lastSetOf(workouts: Workout[], name: string, exceptId?: number):
     }
   }
   return best
+}
+
+// 上一次练这个动作（按名字认）的那次训练：日期和每组
+export function lastSessionOf(workouts: Workout[], name: string, exceptId?: number) {
+  for (let i = workouts.length - 1; i >= 0; i--) {
+    const w = workouts[i]
+    if (w.id === exceptId) continue
+    const ex = w.exercises.find((e) => e.name === name && w.sets[e.id]?.length)
+    if (ex) return { date: w.date, sets: w.sets[ex.id] }
+  }
 }
 
 export function newId() {
