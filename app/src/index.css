@@ -678,3 +678,115 @@ h3 {
   color: #ffd60a;
   font-weight: 600;
 }
+
+/* ---------- RPE 对照、主项计时、完成动作 ---------- */
+.ex-inputs .field,
+.sheet-fields .field {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--field);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.sheet-fields .field {
+  flex: 1;
+  background: var(--card);
+  padding: 10px 12px;
+}
+.ex-inputs .rpe-in input {
+  width: 44px;
+}
+.rpe-in.need {
+  box-shadow: 0 0 0 2px var(--danger);
+}
+.rpe-help {
+  color: var(--accent);
+  font-size: 13px;
+  flex: none;
+}
+.rpe-warn {
+  color: var(--danger);
+  font-size: 13px;
+}
+.rpe-list {
+  list-style: none;
+  margin: 12px 0 14px;
+  padding: 0;
+  background: var(--card);
+  border-radius: 12px;
+}
+.rpe-list li + li {
+  border-top: 1px solid var(--line);
+}
+.rpe-list button {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text);
+}
+.rpe-list b {
+  width: 22px;
+  flex: none;
+  font-size: 18px;
+}
+
+.last-bar {
+  flex-wrap: wrap;
+}
+.main-bar {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.main-bar b {
+  margin-left: auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.main-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+/* 没做的组虚化，免得看成已经做了 */
+.dot {
+  opacity: 0.25;
+  background: none;
+}
+.dot.next {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.complete {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  color: var(--ok);
+}
+.ex-completed {
+  opacity: 0.55;
+}
+.ex-completed .dot-wrap {
+  pointer-events: none;
+}
+.reopen {
+  margin-left: 10px;
+  font-size: 14px;
+}

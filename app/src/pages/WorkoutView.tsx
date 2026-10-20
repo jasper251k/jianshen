@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { finishWorkout, lastSessionOf, lastSetOf, db, writeSets, type SetRec, type Workout } from '../db'
 import { useNow, useWakeLock } from '../hooks'
 import { ago, clock, setColor } from '../util'
@@ -35,18 +35,29 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
     return () => clearTimeout(t)
   }, [flash])
 
-  // 最近一次记录
-  const latest = useMemo(() => {
+  // 最近一次记录；main = 只看深蹲、硬拉、卧推、划船（记 RPE 的），用来算主项休息了多久
+  const latestOf = (main: boolean) => {
     let best: { exId: string; name: string; index: number; at: number } | undefined
     for (const ex of w.exercises)
-      (w.sets[ex.id] ?? []).forEach((s, i) => {
-        if (!best || s.at > best.at) best = { exId: ex.id, name: ex.name, index: i, at: s.at }
-      })
+      if (!main || ex.rpe)
+        (w.sets[ex.id] ?? []).forEach((s, i) => {
+          if (!best || s.at > best.at) best = { exId: ex.id, name: ex.name, index: i, at: s.at }
+        })
     return best
-  }, [w])
+  }
+  const latest = latestOf(false)
+  const latestMain = latestOf(true)
+
+  // 点了「完成这个动作」的按完成顺序排到最底下
+  const completed = w.completed ?? []
+  const ordered = [
+    ...w.exercises.filter((ex) => !completed.includes(ex.id)),
+    ...completed.map((id) => w.exercises.find((ex) => ex.id === id)!).filter(Boolean),
+  ]
 
   const total = w.exercises.length
   const doneCount = w.exercises.filter((ex) => {
+    if (completed.includes(ex.id)) return true
     const n = w.sets[ex.id]?.length ?? 0
     const target = ex.minutes != null ? 1 : ex.sets
     return target ? n >= target : n > 0
@@ -88,6 +99,14 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
             还没记录<small>做完一组，点对应的圆点</small>
           </span>
         )}
+        {latestMain && (
+          <div className="main-bar">
+            <span className="main-dot" style={{ background: setColor(latestMain.index) }}>
+              {latestMain.index + 1}
+            </span>
+            主项：{latestMain.name} 第 {latestMain.index + 1} 组<b>{ago(now - latestMain.at)}</b>
+          </div>
+        )}
       </div>
 
       <header className="page-head">
@@ -100,7 +119,7 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
         </span>
       </header>
 
-      {w.exercises.map((ex) => (
+      {ordered.map((ex) => (
         <ExerciseCard
           key={ex.id}
           w={w}

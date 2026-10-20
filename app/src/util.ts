@@ -60,3 +60,14 @@ export const SET_COLORS = ['#ff3b30', '#ff9500', '#34c759', '#007aff', '#af52de'
 export function setColor(i: number) {
   return SET_COLORS[i % SET_COLORS.length]
 }
+
+// RPE 对照表（点「RPE」弹出）
+export const RPE_SCALE: [number, string][] = [
+  [10, '一滴都不剩'],
+  [9, '最后一个明显大幅减速，但感觉还能再做一个'],
+  [8, '最后一个难以快速爆发发力，但动作本身不挣扎，还有 2～4 个余量'],
+  [7, '最后一个如果愿意用最大努力，可以加速做起'],
+  [6, '不需要主观努力，很随意就能加速做起（和 7 的区别：不用精神高度集中就能飞速做）'],
+  [5, '热身组的边缘'],
+  [4, '非常轻松，随便能做 20 多个'],
+]

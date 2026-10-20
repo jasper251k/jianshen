@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { writeSets, type Exercise, type SetRec, type Workout } from '../db'
+import { setCompleted, writeSets, type Exercise, type SetRec, type Workout } from '../db'
 import { beep, primeAudio } from '../hooks'
 import { clock, fmtDate, fmtNum, parseNum, setColor, setText } from '../util'
+import RpeSheet from './RpeSheet'
 import SetSheet from './SetSheet'
 
 export default function ExerciseCard({
@@ -33,10 +34,14 @@ export default function ExerciseCard({
     return v != null ? fmtNum(v) : ''
   })
   const [rpe, setRpe] = useState('') // 每组现填，不沿用
+  const [needRpe, setNeedRpe] = useState(false) // 没填 RPE 就点了下一组
+  const [showRpe, setShowRpe] = useState(false) // RPE 对照表
+  const rpeInput = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState<number | null>(null)
   // 点一下改，连点两下删；刚记的 0.6 秒内不算，防止点「下一组」时手快多点一下就删了
   const tap = useRef<{ i: number; t: number; timer?: number }>({ i: -1, t: 0 })
   const tapDone = (i: number) => {
+    if (completed) return
     const now = Date.now()
     if (now - done[i].at < 600) return
     const last = tap.current
@@ -50,12 +55,21 @@ export default function ExerciseCard({
     tap.current = { i, t: now, timer: setTimeout(() => setEditing(i), 300) }
   }
 
+  const completed = !!w.completed?.includes(ex.id)
   const target = cardio ? 1 : (ex.sets ?? 0)
-  const finished = target > 0 && done.length >= target
-  // 固定组数：排好所有圆点；看情况的：已做的 + 下一组
-  const slots = Math.max(target, done.length + (finished ? 0 : target ? 0 : 1))
+  const finished = completed || (target > 0 && done.length >= target)
+  // 固定组数：排好所有圆点；看情况的：已做的 + 下一组；点了完成只留已做的
+  const slots = completed ? done.length : Math.max(target, done.length + (finished ? 0 : target ? 0 : 1))
 
   const record = () => {
+    if (completed) return
+    // 深蹲、硬拉、卧推、划船：必须先填 RPE
+    if (ex.rpe && parseNum(rpe) == null) {
+      setNeedRpe(true)
+      rpeInput.current?.focus()
+      return
+    }
+    setNeedRpe(false)
     const s: SetRec = cardio ? { min: ex.minutes, at: Date.now() } : { kg: parseNum(kg), reps: parseNum(reps), rpe: ex.rpe ? parseNum(rpe) : undefined, at: Date.now() }
     writeSets(w, ex.id, (list) => [...list, s], cardio ? { timerStart: undefined } : undefined)
     setRpe('')
@@ -70,17 +84,22 @@ export default function ExerciseCard({
   }, [timeUp])
 
   return (
-    <section className={'ex' + (finished ? ' ex-done' : '')}>
+    <section className={'ex' + (finished ? ' ex-done' : '') + (completed ? ' ex-completed' : '')}>
       <header className="ex-head">
         <h3>{ex.name}</h3>
         <span className="ex-target">
           {cardio ? `${ex.minutes} 分钟` : ex.sets ? `${ex.sets}×${ex.reps ?? '?'}` : '看情况'}
           {!cardio && done.length > 0 && <b> · 已做 {done.length} 组</b>}
           {finished && <b className="ok"> ✓</b>}
+          {completed && (
+            <button className="link reopen" onClick={() => setCompleted(w, ex.id, false)}>
+              撤回
+            </button>
+          )}
         </span>
       </header>
 
-      {ex.rpe && lastSession && (
+      {ex.rpe && lastSession && !completed && (
         <p className="ex-last">
           上次 {fmtDate(lastSession.date).replace(/ 周./, '')}：{lastSession.sets.map((s) => setText(s)).join('，')}
         </p>
@@ -110,7 +129,7 @@ export default function ExerciseCard({
             </button>
           )
         })}
-        {finished && !cardio && (
+        {finished && !completed && !cardio && (
           <button className="dot-wrap" onClick={record}>
             <span className="dot plus">＋</span>
             <span className="dot-label">再加一组</span>
@@ -118,7 +137,9 @@ export default function ExerciseCard({
         )}
       </div>
 
-      {cardio
+      {completed
+        ? null
+        : cardio
         ? !finished && (
             <div className="ex-inputs">
               {timerLeft == null ? (
@@ -158,13 +179,44 @@ export default function ExerciseCard({
                 <small>次</small>
               </label>
               {ex.rpe && (
-                <label className="rpe-in">
-                  <small>RPE</small>
-                  <input inputMode="decimal" value={rpe} onChange={(e) => setRpe(e.target.value)} placeholder="—" />
-                </label>
+                <div className={'field rpe-in' + (needRpe ? ' need' : '')}>
+                  <button className="rpe-help" onClick={() => setShowRpe(true)}>
+                    RPE ⓘ
+                  </button>
+                  <input
+                    ref={rpeInput}
+                    inputMode="decimal"
+                    value={rpe}
+                    onChange={(e) => {
+                      setRpe(e.target.value)
+                      setNeedRpe(false)
+                    }}
+                    placeholder="必填"
+                  />
+                </div>
               )}
+              {needRpe && <span className="rpe-warn">先填 RPE 再点圆点</span>}
             </div>
           )}
+
+      {!completed && done.length > 0 && (
+        <button
+          className="btn small complete"
+          onClick={() => confirm(`${ex.name} 做完了？完成后排到最底下，不能再点。`) && setCompleted(w, ex.id, true)}
+        >
+          完成这个动作
+        </button>
+      )}
+
+      {showRpe && (
+        <RpeSheet
+          onPick={(n) => {
+            setRpe(String(n))
+            setNeedRpe(false)
+          }}
+          onClose={() => setShowRpe(false)}
+        />
+      )}
 
       {editing != null && done[editing] && (
         <SetSheet

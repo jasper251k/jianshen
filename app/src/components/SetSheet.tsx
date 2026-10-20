@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SetRec } from '../db'
 import { fmtNum, parseNum, setColor } from '../util'
+import RpeSheet from './RpeSheet'
 
 // 点已做的组：改重量 / 次数，或删掉这组
 export default function SetSheet({
@@ -26,6 +27,7 @@ export default function SetSheet({
   const [reps, setReps] = useState(set.reps != null ? fmtNum(set.reps) : '')
   const [rpe, setRpe] = useState(set.rpe != null ? fmtNum(set.rpe) : '')
   const [min, setMin] = useState(set.min != null ? fmtNum(set.min) : '')
+  const [showRpe, setShowRpe] = useState(false)
 
   const save = () => {
     onSave(cardio ? { ...set, min: parseNum(min) } : { ...set, kg: parseNum(kg), reps: parseNum(reps), rpe: parseNum(rpe) })
@@ -60,10 +62,12 @@ export default function SetSheet({
               <small>次</small>
             </label>
             {hasRpe && (
-              <label>
-                <small>RPE</small>
+              <div className="field">
+                <button className="rpe-help" onClick={() => setShowRpe(true)}>
+                  RPE ⓘ
+                </button>
                 <input inputMode="decimal" value={rpe} onChange={(e) => setRpe(e.target.value)} placeholder="—" />
-              </label>
+              </div>
             )}
           </div>
         )}
@@ -80,6 +84,7 @@ export default function SetSheet({
           删掉这组
         </button>
       </div>
+      {showRpe && <RpeSheet onPick={(n) => setRpe(String(n))} onClose={() => setShowRpe(false)} />}
     </div>
   )
 }

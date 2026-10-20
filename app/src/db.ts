@@ -28,6 +28,7 @@ export type Workout = {
   exercises: Exercise[] // 开练时模板的快照，之后改模板不影响历史
   sets: Record<string, SetRec[]> // 动作 id → 已做的组
   timerStart?: number // 有氧计时开始时间
+  completed?: string[] // 点了「完成这个动作」的动作 id，按完成顺序排到最底下
 }
 
 export type Daily = {
@@ -140,6 +141,17 @@ export async function writeSets(w: Workout, exId: string, fn: (list: SetRec[]) =
       x.sets[exId] = fn(x.sets[exId] ?? [])
       if (!x.sets[exId].length) delete x.sets[exId]
       Object.assign(x, extra)
+    })
+}
+
+// 点「完成这个动作」/ 撤回：完成的排到最底下
+export async function setCompleted(w: Workout, exId: string, on: boolean) {
+  await db.workouts
+    .where('id')
+    .equals(w.id!)
+    .modify((x) => {
+      const list = (x.completed ?? []).filter((id) => id !== exId)
+      x.completed = on ? [...list, exId] : list
     })
 }
 
