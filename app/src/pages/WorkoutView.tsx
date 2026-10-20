@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { finishWorkout, lastSessionOf, lastSetOf, db, type Workout } from '../db'
+import { finishWorkout, lastSessionOf, lastSetOf, db, writeSets, type SetRec, type Workout } from '../db'
 import { useNow, useWakeLock } from '../hooks'
 import { ago, clock, setColor } from '../util'
 import ExerciseCard from '../components/ExerciseCard'
@@ -10,6 +10,25 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
   useWakeLock(true)
   const [flash, setFlash] = useState<number | null>(null) // 刚点的那组颜色，整屏闪一下
 
+  // 删掉一组后，底部提示 5 秒，可撤销
+  type Removed = { exId: string; name: string; index: number; set: SetRec; key: number }
+  const [removed, setRemoved] = useState<Removed | null>(null)
+  useEffect(() => {
+    if (!removed) return
+    const t = setTimeout(() => setRemoved(null), 5000)
+    return () => clearTimeout(t)
+  }, [removed])
+  const remove = (exId: string, index: number, set: SetRec) => {
+    const name = w.exercises.find((e) => e.id === exId)?.name ?? ''
+    setRemoved({ exId, name, index, set, key: Date.now() })
+  }
+  const undo = () => {
+    if (!removed) return
+    const r = removed
+    writeSets(w, r.exId, (l) => [...l.slice(0, r.index), r.set, ...l.slice(r.index)])
+    setRemoved(null)
+  }
+
   useEffect(() => {
     if (flash == null) return
     const t = setTimeout(() => setFlash(null), 600)
@@ -18,10 +37,10 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
 
   // 最近一次记录
   const latest = useMemo(() => {
-    let best: { name: string; index: number; at: number } | undefined
+    let best: { exId: string; name: string; index: number; at: number } | undefined
     for (const ex of w.exercises)
       (w.sets[ex.id] ?? []).forEach((s, i) => {
-        if (!best || s.at > best.at) best = { name: ex.name, index: i, at: s.at }
+        if (!best || s.at > best.at) best = { exId: ex.id, name: ex.name, index: i, at: s.at }
       })
     return best
   }, [w])
@@ -53,6 +72,16 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
               </span>
               <small>{ago(now - latest.at)}</small>
             </span>
+            <button
+              className="btn small last-undo"
+              onClick={() => {
+                const set = w.sets[latest.exId][latest.index]
+                writeSets(w, latest.exId, (l) => l.filter((_, j) => j !== latest.index))
+                remove(latest.exId, latest.index, set)
+              }}
+            >
+              删掉这组
+            </button>
           </>
         ) : (
           <span className="last-text">
@@ -80,8 +109,18 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
           lastSession={lastSessionOf(history, ex.name, w.id)}
           now={now}
           onRecorded={(i) => setFlash(i)}
+          onDeleted={(i) => remove(ex.id, i, w.sets[ex.id][i])}
         />
       ))}
+
+      {removed && (
+        <div className="toast" key={removed.key}>
+          <span>
+            已删除 {removed.name} 第 {removed.index + 1} 组
+          </span>
+          <button onClick={undo}>撤销</button>
+        </div>
+      )}
 
       <button className="btn primary finish" onClick={finish}>
         结束训练

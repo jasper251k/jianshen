@@ -1,19 +1,8 @@
-import { useEffect, useState } from 'react'
-import { db, type Exercise, type SetRec, type Workout } from '../db'
+import { useEffect, useRef, useState } from 'react'
+import { writeSets, type Exercise, type SetRec, type Workout } from '../db'
 import { beep, primeAudio } from '../hooks'
 import { clock, fmtDate, fmtNum, parseNum, setColor, setText } from '../util'
 import SetSheet from './SetSheet'
-
-async function writeSets(w: Workout, exId: string, fn: (list: SetRec[]) => SetRec[], extra?: Partial<Workout>) {
-  await db.workouts
-    .where('id')
-    .equals(w.id!)
-    .modify((x) => {
-      x.sets[exId] = fn(x.sets[exId] ?? [])
-      if (!x.sets[exId].length) delete x.sets[exId]
-      Object.assign(x, extra)
-    })
-}
 
 export default function ExerciseCard({
   w,
@@ -22,6 +11,7 @@ export default function ExerciseCard({
   lastSession,
   now,
   onRecorded,
+  onDeleted,
 }: {
   w: Workout
   ex: Exercise
@@ -29,6 +19,7 @@ export default function ExerciseCard({
   lastSession?: { date: string; sets: SetRec[] } // 上次练这个动作的每组
   now: number
   onRecorded: (index: number) => void
+  onDeleted: (index: number) => void
 }) {
   const done = w.sets[ex.id] ?? []
   const cardio = ex.minutes != null
@@ -43,6 +34,21 @@ export default function ExerciseCard({
   })
   const [rpe, setRpe] = useState('') // 每组现填，不沿用
   const [editing, setEditing] = useState<number | null>(null)
+  // 点一下改，连点两下删；刚记的 0.6 秒内不算，防止点「下一组」时手快多点一下就删了
+  const tap = useRef<{ i: number; t: number; timer?: number }>({ i: -1, t: 0 })
+  const tapDone = (i: number) => {
+    const now = Date.now()
+    if (now - done[i].at < 600) return
+    const last = tap.current
+    clearTimeout(last.timer)
+    if (last.i === i && now - last.t < 350) {
+      tap.current = { i: -1, t: 0 }
+      writeSets(w, ex.id, (l) => l.filter((_, j) => j !== i))
+      onDeleted(i)
+      return
+    }
+    tap.current = { i, t: now, timer: setTimeout(() => setEditing(i), 300) }
+  }
 
   const target = cardio ? 1 : (ex.sets ?? 0)
   const finished = target > 0 && done.length >= target
@@ -86,7 +92,7 @@ export default function ExerciseCard({
           const color = setColor(i)
           if (s)
             return (
-              <button key={i} className="dot-wrap" onClick={() => setEditing(i)}>
+              <button key={i} className="dot-wrap" onClick={() => tapDone(i)}>
                 <span className="dot on" style={{ background: color, borderColor: color }}>
                   {cardio ? '✓' : i + 1}
                 </span>

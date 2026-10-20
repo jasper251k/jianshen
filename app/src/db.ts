@@ -132,6 +132,17 @@ export function newId() {
   return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
+export async function writeSets(w: Workout, exId: string, fn: (list: SetRec[]) => SetRec[], extra?: Partial<Workout>) {
+  await db.workouts
+    .where('id')
+    .equals(w.id!)
+    .modify((x) => {
+      x.sets[exId] = fn(x.sets[exId] ?? [])
+      if (!x.sets[exId].length) delete x.sets[exId]
+      Object.assign(x, extra)
+    })
+}
+
 export function doneAts(w: Workout) {
   return Object.values(w.sets).flatMap((list) => list.map((s) => s.at))
 }
