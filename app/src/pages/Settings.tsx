@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { db, DEFAULT_TEMPLATES, newId, type Exercise, type Template } from '../db'
 import { exportBackup, importBackup } from '../backup'
+import { getThemePref, setThemePref, type ThemePref } from '../theme'
 import { fmtNum, parseNum } from '../util'
 
 // 编辑一个模板：动作名、组数、次数、顺序
@@ -94,6 +95,7 @@ function TemplateEditor({ t, onDone }: { t: Template; onDone: () => void }) {
 export default function Settings({ templates, onClose }: { templates: Template[]; onClose: () => void }) {
   const [editing, setEditing] = useState<Template | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [theme, setTheme] = useState(getThemePref)
 
   if (editing) return <TemplateEditor t={editing} onDone={() => setEditing(null)} />
 
@@ -116,6 +118,29 @@ export default function Settings({ templates, onClose }: { templates: Template[]
         </button>
       ))}
       <p className="note">改模板只影响以后的训练，已有记录不变。</p>
+
+      <h2 className="section">外观</h2>
+      <div className="seg-ctl">
+        {(
+          [
+            ['auto', '跟随系统'],
+            ['light', '白天'],
+            ['dark', '夜间'],
+          ] as [ThemePref, string][]
+        ).map(([v, label]) => (
+          <button
+            key={v}
+            className={theme === v ? 'on' : ''}
+            onClick={() => {
+              setThemePref(v)
+              setTheme(v)
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <p className="note">白天是柔彩渐变，夜间是发光圆环。跟随系统 = 手机深色模式时自动变夜间。</p>
 
       <h2 className="section">备份</h2>
       <div className="card">

@@ -21,24 +21,24 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --bg-grad: #000000;
-    --card: #1c1c1e;
-    --text: #f2f2f7;
-    --sub: #8e8e93;
-    --line: #2c2c2e;
-    --accent: #0a84ff;
-    --ok: #30d158;
-    --danger: #ff453a;
-    --field: #2c2c2e;
-    --shadow: none;
-    --grad: #0a84ff;
-    --bar: rgba(18, 18, 20, 0.88);
-    --dot-off: #3a3a3c;
-  }
+:root[data-theme='dark'] {
+  --bg: #000000;
+  --bg-grad: #000000;
+  --card: #141416;
+  --text: #f2f2f7;
+  --sub: #8e8e93;
+  --line: #2c2c2e;
+  --accent: #30d158;
+  --ok: #30d158;
+  --danger: #ff453a;
+  --field: #2c2c2e;
+  --shadow: none;
+  --grad: linear-gradient(90deg, #30d158, #34e0a1);
+  --bar: rgba(14, 14, 16, 0.88);
+  --glow: 0 0 18px rgba(48, 209, 88, 0.45);
+  --dot-off: #3a3a3c;
 }
+
 
 * {
   box-sizing: border-box;
@@ -935,6 +935,7 @@ body,
 .dot.on {
   border: 0;
   color: #fff;
+  background: var(--c); /* 老系统保底 */
   background: linear-gradient(145deg, color-mix(in srgb, var(--c) 68%, #fff), var(--c));
   box-shadow: 0 6px 14px color-mix(in srgb, var(--c) 30%, transparent);
 }
@@ -966,37 +967,68 @@ body,
   border-radius: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .main-clock {
-    background: none;
-    color: #30d158;
-    text-shadow: 0 0 24px rgba(48, 209, 88, 0.45);
-  }
-  .dot.next {
-    opacity: 0.55;
-  }
-  .dot.plus {
-    border: 2px dashed #3a3a3c;
-    background: none;
-  }
-  .dot:not(.on):not(.next):not(.plus) {
-    background: none;
-    border: 2px dashed #3a3a3c;
-    color: #48484a;
-  }
-  .dot.on {
-    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 78%, #fff), var(--c));
-    box-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent);
-  }
-  .complete {
-    background: rgba(48, 209, 88, 0.14) !important;
-    color: #30d158 !important;
-  }
-  .btn.primary,
-  .resume {
-    background: #0a84ff;
-  }
+[data-theme='dark'] .main-clock {
+  background: none;
+  color: #30d158;
+  text-shadow: 0 0 24px rgba(48, 209, 88, 0.45);
 }
+[data-theme='dark'] .dot.next {
+  opacity: 0.55;
+}
+[data-theme='dark'] .dot.plus {
+  border: 2px dashed #3a3a3c;
+  background: none;
+}
+[data-theme='dark'] .dot:not(.on):not(.next):not(.plus) {
+  background: none;
+  border: 2px dashed #3a3a3c;
+  color: #48484a;
+}
+[data-theme='dark'] .dot.on {
+  background: var(--c);
+  box-shadow: 0 0 16px var(--c);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 78%, #fff), var(--c));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent);
+}
+[data-theme='dark'] .btn.complete {
+  background: rgba(48, 209, 88, 0.14) !important;
+  color: #30d158 !important;
+}
+/* 卡片：近黑 + 一圈极细亮边 */
+[data-theme='dark'] .card,
+[data-theme='dark'] .tpl,
+[data-theme='dark'] .daily-cell,
+[data-theme='dark'] .ex {
+  border: 0.5px solid rgba(255, 255, 255, 0.07);
+}
+[data-theme='dark'] .btn.primary,
+[data-theme='dark'] .resume {
+  background: var(--grad);
+  color: #000;
+  box-shadow: var(--glow);
+}
+[data-theme='dark'] .tabbar button.on,
+[data-theme='dark'] .tpl-last {
+  text-shadow: 0 0 12px rgba(48, 209, 88, 0.55);
+}
+[data-theme='dark'] .daily-input input {
+  color: #30d158;
+  text-shadow: 0 0 14px rgba(48, 209, 88, 0.4);
+}
+[data-theme='dark'] .daily-input input::placeholder {
+  color: #3a3a3c;
+  text-shadow: none;
+}
+[data-theme='dark'] .rest-track span {
+  box-shadow: 0 0 10px rgba(48, 209, 88, 0.7);
+}
+[data-theme='dark'] .rest-lab b {
+  color: #30d158;
+}
+[data-theme='dark'] .rpe-help {
+  color: #64d2ff;
+}
+
 
 /* ---------- 深蹲、卧推休息提醒 ---------- */
 .rest-bar {
@@ -1073,4 +1105,26 @@ body,
   50% {
     background: #ff9500;
   }
+}
+
+/* ---------- 外观切换 ---------- */
+.seg-ctl {
+  display: flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--field);
+}
+.seg-ctl button {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 9px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--sub);
+}
+.seg-ctl button.on {
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
