@@ -112,7 +112,7 @@ export default function ExerciseCard({
           if (s)
             return (
               <button key={i} className="dot-wrap" onClick={() => tapDone(i)}>
-                <span className="dot on" style={{ background: color, borderColor: color }}>
+                <span className="dot on" style={{ '--c': color } as React.CSSProperties}>
                   {cardio ? '✓' : i + 1}
                 </span>
                 <span className="dot-label">{setText({ ...s, rpe: undefined })}</span>
@@ -122,7 +122,7 @@ export default function ExerciseCard({
           const next = i === done.length
           return (
             <button key={i} className="dot-wrap" onClick={record}>
-              <span className={'dot' + (next ? ' next' : '')} style={{ borderColor: color, color }}>
+              <span className={'dot' + (next ? ' next' : '')} style={next ? ({ '--c': color } as React.CSSProperties) : undefined}>
                 {cardio ? '完成' : i + 1}
               </span>
               <span className="dot-label">{next ? '点这里' : ' '}</span>

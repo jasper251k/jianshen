@@ -101,10 +101,13 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
         )}
         {latestMain && (
           <div className="main-bar">
-            <span className="main-dot" style={{ background: setColor(latestMain.index) }}>
-              {latestMain.index + 1}
+            <span className="main-lab">
+              主项休息
+              <b>
+                {latestMain.name} 第 {latestMain.index + 1} 组
+              </b>
             </span>
-            主项：{latestMain.name} 第 {latestMain.index + 1} 组<b>{ago(now - latestMain.at)}</b>
+            <span className="main-clock">{clock(now - latestMain.at)}</span>
           </div>
         )}
       </div>

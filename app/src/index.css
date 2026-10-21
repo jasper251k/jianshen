@@ -1,14 +1,20 @@
+/* 白天：柔彩渐变；夜间：发光圆环（跟随手机深浅色） */
 :root {
-  --bg: #f2f2f7;
-  --card: #ffffff;
+  --bg: #fbf2f4; /* 弹出层底色 */
+  --bg-grad: linear-gradient(165deg, #ffe7dc 0%, #fdf2ff 42%, #e3efff 100%);
+  --card: rgba(255, 255, 255, 0.82);
   --text: #1c1c1e;
   --sub: #8e8e93;
-  --line: #e5e5ea;
-  --accent: #007aff;
+  --line: rgba(60, 40, 90, 0.08);
+  --accent: #7c4dff;
   --danger: #ff3b30;
   --ok: #34c759;
-  --field: #f2f2f7;
-  --radius: 14px;
+  --field: rgba(40, 20, 60, 0.045);
+  --radius: 22px;
+  --shadow: 0 10px 30px rgba(120, 80, 160, 0.08);
+  --grad: linear-gradient(90deg, #ff7a59, #b45cff);
+  --bar: rgba(255, 255, 255, 0.72);
+  --dot-off: rgba(40, 20, 60, 0.12);
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -18,12 +24,19 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #000000;
+    --bg-grad: #000000;
     --card: #1c1c1e;
     --text: #f2f2f7;
-    --sub: #98989f;
-    --line: #38383a;
+    --sub: #8e8e93;
+    --line: #2c2c2e;
     --accent: #0a84ff;
+    --ok: #30d158;
+    --danger: #ff453a;
     --field: #2c2c2e;
+    --shadow: none;
+    --grad: #0a84ff;
+    --bar: rgba(18, 18, 20, 0.88);
+    --dot-off: #3a3a3c;
   }
 }
 
@@ -774,7 +787,7 @@ h3 {
   border-style: dashed;
 }
 
-.complete {
+.btn.complete {
   display: block;
   width: 100%;
   margin-top: 12px;
@@ -789,4 +802,198 @@ h3 {
 .reopen {
   margin-left: 10px;
   font-size: 14px;
+}
+
+/* ======================================================
+   新外观：白天柔彩渐变 / 夜间发光圆环
+   ====================================================== */
+html,
+body,
+#root,
+.app {
+  background: var(--bg-grad);
+}
+.screen {
+  padding-top: calc(env(safe-area-inset-top) + 4px);
+}
+.page-head h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.section {
+  font-weight: 700;
+}
+.card,
+.tpl,
+.daily-cell,
+.ex {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.daily-cell {
+  border-radius: 18px;
+}
+.tabbar {
+  background: var(--bar);
+  border-top: 0.5px solid var(--line);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.btn {
+  border-radius: 14px;
+}
+.btn.primary,
+.resume {
+  background: var(--grad);
+  color: #fff;
+}
+.tpl-name {
+  font-weight: 700;
+}
+.tpl-last {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* 顶栏：刚记 + 主项休息 */
+.last-bar {
+  background: var(--bar);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--line);
+}
+.last-undo {
+  background: rgba(255, 59, 48, 0.12) !important;
+  border-radius: 20px;
+}
+.main-bar {
+  border-top: 0.5px solid var(--line);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+.main-lab {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--sub);
+}
+.main-lab b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.main-clock {
+  margin-left: auto;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(90deg, #ff6b4a, #b45cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 动作卡 */
+.ex {
+  padding: 16px 16px 14px;
+  margin-bottom: 12px;
+}
+.ex-head h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.ex-inputs {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 14px;
+}
+.ex-inputs label,
+.ex-inputs .field {
+  border-radius: 14px;
+}
+.ex-inputs input {
+  font-weight: 700;
+}
+
+/* 圆点：做完的实心带光泽，下一组彩色细圈，其余淡灰 */
+.dot {
+  border: 0;
+  opacity: 1;
+  background: var(--field);
+  color: var(--dot-off);
+}
+.dot.next {
+  border: 2.5px solid var(--c);
+  color: var(--c);
+  background: transparent;
+  opacity: 0.6;
+  animation: none;
+}
+.dot.on {
+  border: 0;
+  color: #fff;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--c) 68%, #fff), var(--c));
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.dot.plus {
+  background: var(--field);
+  border: 0;
+  color: var(--sub);
+}
+.dot-label {
+  color: var(--text);
+  opacity: 0.75;
+}
+.dot-rpe {
+  color: var(--sub);
+}
+
+.btn.complete {
+  background: var(--grad) !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 16px;
+  padding: 11px;
+}
+.ex-completed {
+  opacity: 0.45;
+}
+
+.toast {
+  border-radius: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .main-clock {
+    background: none;
+    color: #30d158;
+    text-shadow: 0 0 24px rgba(48, 209, 88, 0.45);
+  }
+  .dot.next {
+    opacity: 0.55;
+  }
+  .dot.plus {
+    border: 2px dashed #3a3a3c;
+    background: none;
+  }
+  .dot:not(.on):not(.next):not(.plus) {
+    background: none;
+    border: 2px dashed #3a3a3c;
+    color: #48484a;
+  }
+  .dot.on {
+    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 78%, #fff), var(--c));
+    box-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent);
+  }
+  .complete {
+    background: rgba(48, 209, 88, 0.14) !important;
+    color: #30d158 !important;
+  }
+  .btn.primary,
+  .resume {
+    background: #0a84ff;
+  }
 }
