@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { finishWorkout, lastSessionOf, lastSetOf, db, writeSets, type SetRec, type Workout } from '../db'
-import { useNow, useWakeLock } from '../hooks'
+import { beep, buzz, useNow, useWakeLock } from '../hooks'
 import { ago, clock, setColor } from '../util'
 import ExerciseCard from '../components/ExerciseCard'
+
+const REST_IDS = ['squat', 'bench'] // 有休息提醒的动作
 
 // 正在练：顶部常驻「刚记了什么」，下面每个动作一张卡
 export default function WorkoutView({ w, history, onBack }: { w: Workout; history: Workout[]; onBack: () => void }) {
@@ -48,6 +50,25 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
   const latest = latestOf(false)
   const latestMain = latestOf(true)
 
+  // 深蹲、卧推休息提醒：第 1 组后 5 分钟，之后每组多 1 分钟
+  let rest: { name: string; index: number; at: number; min: number } | undefined
+  for (const ex of w.exercises)
+    if (REST_IDS.includes(ex.id)) {
+      const list = w.sets[ex.id] ?? []
+      const s = list[list.length - 1]
+      if (s && (!rest || s.at > rest.at) && !w.completed?.includes(ex.id))
+        rest = { name: ex.name, index: list.length - 1, at: s.at, min: 5 + list.length - 1 }
+    }
+  const restLeft = rest ? rest.at + rest.min * 60000 - now : null
+  const restUp = restLeft != null && restLeft <= 0
+  const [dismissed, setDismissed] = useState(0) // 点「知道了」的那组时间
+  const alarm = restUp && restLeft! > -180000 && dismissed !== rest!.at // 整屏提醒最多 3 分钟
+  useEffect(() => {
+    if (!restUp) return
+    beep(5)
+    buzz()
+  }, [restUp, rest?.at])
+
   // 点了「完成这个动作」的按完成顺序排到最底下
   const completed = w.completed ?? []
   const ordered = [
@@ -71,6 +92,15 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
   return (
     <div className="workout">
       {flash != null && <div className="flash" style={{ background: setColor(flash) }} />}
+      {alarm && (
+        <button className="alarm" onClick={() => setDismissed(rest!.at)}>
+          <span className="alarm-big">休息够了</span>
+          <span>
+            该做{rest!.name}第 {rest!.index + 2} 组
+          </span>
+          <small>点一下关掉</small>
+        </button>
+      )}
       <div className="last-bar" style={latest ? { borderLeftColor: setColor(latest.index) } : undefined}>
         {latest ? (
           <>
@@ -108,6 +138,24 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
               </b>
             </span>
             <span className="main-clock">{clock(now - latestMain.at)}</span>
+          </div>
+        )}
+        {rest && (
+          <div className={'rest-bar' + (restUp ? ' up' : '')}>
+            <span className="rest-lab">
+              {restUp ? (
+                <>
+                  休息够了<b>该做{rest.name}第 {rest.index + 2} 组</b>
+                </>
+              ) : (
+                <>
+                  {rest.name}第 {rest.index + 1} 组后休息 {rest.min} 分钟<b>还剩 {clock(restLeft!)}</b>
+                </>
+              )}
+            </span>
+            <span className="rest-track">
+              <span style={{ width: `${Math.min(100, ((rest.min * 60000 - Math.max(0, restLeft!)) / (rest.min * 60000)) * 100)}%` }} />
+            </span>
           </div>
         )}
       </div>

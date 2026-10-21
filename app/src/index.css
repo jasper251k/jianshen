@@ -997,3 +997,80 @@ body,
     background: #0a84ff;
   }
 }
+
+/* ---------- 深蹲、卧推休息提醒 ---------- */
+.rest-bar {
+  flex-basis: 100%;
+  margin-top: 10px;
+  padding: 10px 12px 8px;
+  border-radius: 14px;
+  background: var(--field);
+}
+.rest-lab {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--sub);
+}
+.rest-lab b {
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.rest-track {
+  display: block;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+.rest-track span {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+  transition: width 1s linear;
+}
+.rest-bar.up {
+  background: var(--ok);
+}
+.rest-bar.up .rest-lab,
+.rest-bar.up .rest-lab b {
+  color: #fff;
+}
+.rest-bar.up .rest-track {
+  display: none;
+}
+.alarm {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  background: #34c759;
+  animation: alarm 1s ease-in-out infinite;
+}
+.alarm-big {
+  font-size: 56px;
+  font-weight: 800;
+}
+.alarm small {
+  font-size: 15px;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 20px;
+}
+@keyframes alarm {
+  50% {
+    background: #ff9500;
+  }
+}

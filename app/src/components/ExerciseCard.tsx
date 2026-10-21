@@ -70,6 +70,7 @@ export default function ExerciseCard({
       return
     }
     setNeedRpe(false)
+    primeAudio() // 深蹲、卧推休息到点要响，得先在点按里启动声音
     const s: SetRec = cardio ? { min: ex.minutes, at: Date.now() } : { kg: parseNum(kg), reps: parseNum(reps), rpe: ex.rpe ? parseNum(rpe) : undefined, at: Date.now() }
     writeSets(w, ex.id, (list) => [...list, s], cardio ? { timerStart: undefined } : undefined)
     setRpe('')

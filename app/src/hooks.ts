@@ -60,3 +60,12 @@ export function beep(times = 3) {
     o.stop(t + 0.35)
   }
 }
+
+// 震动：iPhone 网页不支持，安卓能震；不支持就靠响声和整屏变色
+export function buzz() {
+  try {
+    navigator.vibrate?.([400, 200, 400, 200, 400])
+  } catch {
+    // 不支持就算了
+  }
+}
