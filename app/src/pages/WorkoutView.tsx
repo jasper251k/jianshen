@@ -3,6 +3,7 @@ import { finishWorkout, lastSessionOf, lastSetOf, db, writeSets, type SetRec, ty
 import { beep, buzz, useNow, useWakeLock } from '../hooks'
 import { ago, clock, setColor } from '../util'
 import ExerciseCard from '../components/ExerciseCard'
+import { PlanViewer, usePlan } from '../components/Plan'
 
 const REST_IDS = ['squat', 'bench'] // 有休息提醒的动作
 
@@ -10,6 +11,8 @@ const REST_IDS = ['squat', 'bench'] // 有休息提醒的动作
 export default function WorkoutView({ w, history, onBack }: { w: Workout; history: Workout[]; onBack: () => void }) {
   const now = useNow()
   useWakeLock(true)
+  const plan = usePlan()
+  const [showPlan, setShowPlan] = useState(false)
   const [flash, setFlash] = useState<number | null>(null) // 刚点的那组颜色，整屏闪一下
 
   // 删掉一组后，底部提示 5 秒，可撤销
@@ -161,9 +164,16 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
       </div>
 
       <header className="page-head">
-        <button className="link back" onClick={onBack}>
-          ‹ 首页
-        </button>
+        <div className="row">
+          <button className="link back" onClick={onBack}>
+            ‹ 首页
+          </button>
+          {plan && (
+            <button className="link back" onClick={() => setShowPlan(true)}>
+              本周计划
+            </button>
+          )}
+        </div>
         <h1>{w.name}</h1>
         <span className="sub">
           已练 {clock(now - w.startedAt)} · {doneCount}/{total} 个动作
@@ -201,6 +211,7 @@ export default function WorkoutView({ w, history, onBack }: { w: Workout; histor
       >
         放弃这次训练
       </button>
+      {showPlan && plan && <PlanViewer image={plan.image} onClose={() => setShowPlan(false)} />}
     </div>
   )
 }

@@ -24,11 +24,12 @@
 
 | 文件 | 作用 |
 |---|---|
-| `src/db.ts` | 数据表（templates 模板、workouts 训练、daily 每日数据）、默认三个模板、开始/结束训练 |
+| `src/db.ts` | 数据表（templates 模板、workouts 训练、daily 每日数据、plan 周计划截图）、默认三个模板、开始/结束训练 |
 | `src/util.ts` | 日期、数字格式、每组颜色 `SET_COLORS` |
 | `src/hooks.ts` | 每秒刷新、屏幕常亮、有氧到点响铃 |
 | `src/backup.ts` | 导出 / 恢复 JSON 备份 |
-| `src/pages/Today.tsx` | 首页：每日三格 + 选模板开练 |
+| `src/pages/Today.tsx` | 首页：每日三格 + 本周计划 + 选模板开练 |
+| `src/components/Plan.tsx` | 周计划截图：首页卡片、上传 / 换一张、全屏双指放大看 |
 | `src/pages/WorkoutView.tsx` | 训练中：顶部「刚记」、每个动作卡、结束 |
 | `src/components/ExerciseCard.tsx` | 一个动作：彩色圆点、下一组重量次数、有氧计时 |
 | `src/components/SetSheet.tsx` | 点已做的组：改 / 删 |

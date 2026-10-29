@@ -9,6 +9,7 @@ export async function exportBackup() {
     templates: await db.templates.toArray(),
     workouts: await db.workouts.toArray(),
     daily: await db.daily.toArray(),
+    plan: await db.plan.toArray(),
   }
   const name = `训练记备份-${today()}.json`
   const file = new File([JSON.stringify(data)], name, { type: 'application/json' })
@@ -31,10 +32,15 @@ export async function exportBackup() {
 export async function importBackup(file: File) {
   const data = JSON.parse(await file.text())
   if (data?.app !== 'jianshen') throw new Error('不是训练记的备份文件')
-  await db.transaction('rw', db.templates, db.workouts, db.daily, async () => {
+  await db.transaction('rw', [db.templates, db.workouts, db.daily, db.plan], async () => {
     await Promise.all([db.templates.clear(), db.workouts.clear(), db.daily.clear()])
     await db.templates.bulkAdd(data.templates ?? [])
     await db.workouts.bulkAdd(data.workouts ?? [])
     await db.daily.bulkAdd(data.daily ?? [])
+    // 旧备份没有计划截图，就保留手机里现在这张
+    if (data.plan) {
+      await db.plan.clear()
+      await db.plan.bulkAdd(data.plan)
+    }
   })
 }

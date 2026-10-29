@@ -38,10 +38,17 @@ export type Daily = {
   hr?: number // 起床静息心率
 }
 
+export type Plan = {
+  id: string // 固定 'week'，只留最新一张
+  image: string // 周训练计划截图（data URL）
+  at: number // 上传时间
+}
+
 export const db = new Dexie('jianshen') as Dexie & {
   templates: EntityTable<Template, 'id'>
   workouts: EntityTable<Workout, 'id'>
   daily: EntityTable<Daily, 'date'>
+  plan: EntityTable<Plan, 'id'>
 }
 
 db.version(1).stores({
@@ -59,6 +66,19 @@ db.version(2)
     await tx.table('templates').toCollection().modify((t: Template) => addRpe(t.exercises))
     await tx.table('workouts').toCollection().modify((w: Workout) => addRpe(w.exercises))
   })
+
+// v3：加周训练计划截图
+db.version(3).stores({ plan: 'id' })
+
+export async function savePlan(file: File) {
+  const image = await new Promise<string>((ok, fail) => {
+    const r = new FileReader()
+    r.onload = () => ok(r.result as string)
+    r.onerror = () => fail(r.error)
+    r.readAsDataURL(file)
+  })
+  await db.plan.put({ id: 'week', image, at: Date.now() })
+}
 
 const PULLUP: Exercise = { id: 'pullup', name: '引体', sets: 4, reps: 8 }
 

@@ -1,8 +1,9 @@
 import { startWorkout, type Daily, type Template, type Workout } from '../db'
 import { fmtDate, today } from '../util'
 import DailyCard from '../components/DailyCard'
+import { PlanCard } from '../components/Plan'
 
-// 首页：今天的体重 / 热量 / 心率 + 选模板开练
+// 首页：今天的体重 / 热量 / 心率 + 本周计划截图 + 选模板开练
 export default function Today({
   templates,
   workouts,
@@ -61,6 +62,8 @@ export default function Today({
       )}
 
       <DailyCard key={date} date={date} daily={d} prev={prev} />
+
+      <PlanCard />
 
       <h2 className="section">开始训练</h2>
       <div className="templates">
